@@ -20,6 +20,7 @@ struct Navigator: View {
         } detail: {
             if let selection {
                 detailView(for: selection)
+                    .navigationTitle(selection.title).navigationBarTitleDisplayMode(.inline)
             } else {
                 ContentUnavailableView("Nothing Selected", systemImage: "sidebar.left")
             }

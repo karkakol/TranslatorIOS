@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct Navigator: View {
-    @State private var selection: AppScreen? = .translator
+    @State private var selection: AppScreen? = .benchmark
     
     var body: some View {
         NavigationSplitView {

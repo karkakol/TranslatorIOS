@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Translation
 
 struct TranslationView: View {
     @State private var viewModel = TranslationViewModel()
@@ -14,25 +15,25 @@ struct TranslationView: View {
         VStack {
             TranslationTextField("Translate text", text: $viewModel.sourceText)
             Divider()
-            TranslationTextField("Translation ...", text: $viewModel.targetText)
-            Spacer()
-                .frame(maxHeight: 16)
+            TranslationTextField("Translation ...", text: $viewModel.targetText, disabled: true)
+            Spacer().frame(maxHeight: 16)
             TranslationSelectLanguageRow(
                 sourceLanguge: viewModel.initialSourceLanguage,
                 targetLanguage: viewModel.initialTargetLanguage,
                 isSwapped: viewModel.isSwapped,
                 swapLanguages: viewModel.swapLanguages
             )
+            .translationTask(viewModel.configuration) { session in
+                await viewModel.performTranslation(using: session)
+            }
             Spacer()
-
         }.padding(12)
     }
-
 }
 
 struct TranslationSelectLanguageRow: View {
-    let sourceLanguge: String
-    let targetLanguage: String
+    let sourceLanguge: Locale.Language
+    let targetLanguage: Locale.Language
     let isSwapped: Bool
     let swapLanguages: () -> Void
 
@@ -84,14 +85,17 @@ struct TranslationSelectLanguageRow: View {
 struct TranslationTextField: View {
     var placeholder: String
     var text: Binding<String>
+    var disabled: Bool
 
-    init(_ placeholder: String, text: Binding<String>) {
+    init(_ placeholder: String, text: Binding<String>, disabled: Bool = false) {
         self.placeholder = placeholder
         self.text = text
+        self.disabled = disabled
     }
 
     var body: some View {
         TextField(placeholder, text: text, axis: .vertical)
+            .disabled(disabled)
             .lineLimit(3...6)
             .frame(maxWidth: .infinity)
             .padding(12)
@@ -105,12 +109,12 @@ struct TranslationTextField: View {
 }
 
 struct TranslationCard: View {
-    init(_ text: String) {
-        self.text = text
+    init(_ text: Locale.Language) {
+        self.locale = text
     }
-    var text: String
+    var locale: Locale.Language
     var body: some View {
-        Text(text)
+        Text(locale.languageCode?.identifier ?? "")
             .font(.title3)
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .center)
@@ -133,5 +137,5 @@ struct TranslationCard: View {
 }
 
 #Preview {
-    TranslationCard("Polish")
+    TranslationCard(Locale.Language(identifier: "pl"))
 }
